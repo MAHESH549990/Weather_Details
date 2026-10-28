@@ -4,7 +4,7 @@ A simple and responsive weather application built with **React and Vite** that a
 
 ## 🚀 Live Demo
 
-🔗 **Live Website:** [Add your Render deployment URL here]
+🔗 **Live Website:** [https://weather-details-m8jx.onrender.com]
 
 ## ✨ Features
 
