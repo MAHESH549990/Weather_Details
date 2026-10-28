@@ -4,18 +4,21 @@ import TextField from '@mui/material/TextField';
 import AdsClickIcon from '@mui/icons-material/AdsClick';
 import { useState } from 'react';
 
-export default function SearchBox(){
+export default function SearchBox({updateInfo}){
   const API_URL="https://api.openweathermap.org/data/2.5/weather";
   
   let [city,setCity]=useState("");
+  let [error,setError]=useState(false);
   const API_KEY = import.meta.env.VITE_API_KEY;
   let fetchData=async()=>{
+    try{
         const response = await fetch(
            `${API_URL}?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric`
         );
 
         const data = await response.json();
          let result={
+             city:data.name,
              temparature:data.main.temp,
              max_temp:data.main.temp_max,
              min_temp:data.main.temp_min,
@@ -24,22 +27,25 @@ export default function SearchBox(){
           }
         console.log(data);
         console.log(result);
-    
+        return result;
+    }catch(err){
+      throw err;
+    }
   }
 
   let searchCity=(event)=>{
      setCity(event.target.value);
   }
 
-  let cityDetail=(event)=>{
+  let cityDetail=async(event)=>{
+    try{
     event.preventDefault();
-    console.log(import.meta.env.VITE_API_KEY);
-    const API_KEY = import.meta.env.VITE_API_KEY;
-
-    console.log("API key loaded:", Boolean(API_KEY));
-    console.log(city);
     setCity("");
-    fetchData();
+    let res=await fetchData();
+    updateInfo(res);
+    }catch(err){
+      setError(true);
+    }
   }
   return(
     <>
@@ -52,6 +58,7 @@ export default function SearchBox(){
         Search
       </Button>
     </form>
+    {error && <p className='text-danger m-3'>This place not exist in our API</p>}
     </div>
     </>
   )
