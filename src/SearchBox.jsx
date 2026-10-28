@@ -44,7 +44,6 @@ export default function SearchBox(){
   return(
     <>
     <div className="container card mt-5 p-5">
-      <h1>Search Weather for any state of India</h1>
      <form onSubmit={cityDetail}>
      
       <TextField id="city" label="City Name..." variant="outlined" required className='m-2' value={city} onChange={searchCity}/>
