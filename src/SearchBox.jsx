@@ -1,65 +1,9 @@
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import AdsClickIcon from '@mui/icons-material/AdsClick';
-import { useState } from 'react';
 
-export default function SearchBox({updateInfo}){
-  const API_URL="https://api.openweathermap.org/data/2.5/weather";
-  
-  let [city,setCity]=useState("");
-  let [error,setError]=useState(false);
-  const API_KEY = import.meta.env.VITE_API_KEY;
-  let fetchData=async()=>{
-    try{
-        const response = await fetch(
-           `${API_URL}?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric`
-        );
-
-        const data = await response.json();
-         let result={
-             city:data.name,
-             temparature:data.main.temp,
-             max_temp:data.main.temp_max,
-             min_temp:data.main.temp_min,
-             feelsLike:data.main.feels_like,
-             weather:data.weather[0].description
-          }
-        console.log(data);
-        console.log(result);
-        return result;
-    }catch(err){
-      throw err;
-    }
-  }
-
-  let searchCity=(event)=>{
-     setCity(event.target.value);
-  }
-
-  let cityDetail=async(event)=>{
-    try{
-    event.preventDefault();
-    setCity("");
-    let res=await fetchData();
-    updateInfo(res);
-    }catch(err){
-      setError(true);
-    }
-  }
-  return(
-    <>
-    <div className="container card mt-5 p-5">
-     <form onSubmit={cityDetail}>
-     
-      <TextField id="city" label="City Name..." variant="outlined" required className='m-2' value={city} onChange={searchCity}/>
-      
-      <Button variant="contained" endIcon={<AdsClickIcon />} type="submit" className='mt-3'>
-        Search
-      </Button>
-    </form>
-    {error && <p className='text-danger m-3'>This place not exist in our API</p>}
-    </div>
-    </>
-  )
+import { useState } from "react";
+import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
+import NearMeOutlinedIcon from "@mui/icons-material/NearMeOutlined";
+export default function SearchBox({onSearch,loading}) {
+  const [city,setCity]=useState("");
+  function submit(e){e.preventDefault();const query=city.trim();if(query){onSearch(query);setCity("");}}
+  return <form className="search-bar" onSubmit={submit} role="search"><span className="search-icon"><NearMeOutlinedIcon/></span><label className="visually-hidden" htmlFor="city-search">Search a city</label><input id="city-search" type="search" placeholder="Search a city or town…" value={city} onChange={e=>setCity(e.target.value)} autoComplete="off"/><button type="submit" disabled={loading||!city.trim()}><SearchRoundedIcon/><span>{loading?"Loading…":"Find weather"}</span></button></form>;
 }

@@ -1,45 +1,19 @@
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
+
 import "./ShowWeather.css";
-
-let COLD_URL="https://images.unsplash.com/photo-1668531387310-9c3c2f272d52?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D";
-let HOT_URL="https://images.unsplash.com/photo-1586793064296-2658fa260cbe?q=80&w=1262&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D";
-let RAIN_URL="https://images.unsplash.com/photo-1519692933481-e162a57d6721?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D";
-
-export default function ShowWeather({data}){
-  return(
-    <>
-    <div className="Card-div">
-     <Card sx={{ maxWidth: 345 }}>
-      <CardMedia
-        component="img"
-        alt="green iguana"
-        height="140"
-        image={data.humidity>80?RAIN_URL : data.temparature>15?HOT_URL:COLD_URL}
-      />
-      <CardContent>
-        <Typography gutterBottom variant="h5" component="div">
-          {data.city}
-        </Typography>
-        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          <p>
-            Temparature: <b>{data.temparature}&deg;C</b><br/>
-            Max Temp: <b>{data.max_temp}&deg;C</b><br/>
-            Min Temp: <b>{data.min_temp}&deg;C</b><br/>
-            Weather is <b>{data.weather}</b> feels like <b>{data.feelsLike} and Himidity {data.humidity}&deg;C</b>
-          </p>
-        </Typography>
-      </CardContent>
-      {/* <CardActions>
-        <Button size="small">Share</Button>
-        <Button size="small">Learn More</Button>
-      </CardActions> */}
-    </Card>
-    </div>
-    </>
-  )
+const scenes={
+ rain:"https://images.unsplash.com/photo-1519692933481-e162a57d6721?auto=format&fit=crop&w=1800&q=90",
+ snow:"https://images.unsplash.com/photo-1478265409131-1f65c88f965c?auto=format&fit=crop&w=1800&q=90",
+ clear:"https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1800&q=90",
+ clouds:"https://images.unsplash.com/photo-1499346030926-9a72daac6c63?auto=format&fit=crop&w=1800&q=90",
+ default:"https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?auto=format&fit=crop&w=1800&q=90"
+};
+function scene(d){const w=d.weather.toLowerCase();if(w.includes("rain")||w.includes("drizzle")||w.includes("thunder"))return scenes.rain;if(w.includes("snow")||d.temperature<7)return scenes.snow;if(w.includes("clear"))return scenes.clear;if(w.includes("cloud"))return scenes.clouds;return scenes.default;}
+function time(value,offset){if(!value)return "—";return new Intl.DateTimeFormat("en",{hour:"numeric",minute:"2-digit",timeZone:"UTC"}).format(new Date((value+offset)*1000));}
+export default function ShowWeather({data,loading}){
+ return <section className={"weather-overview"+(loading?" is-refreshing":"")} aria-live="polite"><article className="current-card" style={{"--weather-image":"url("+scene(data)+")"}}><div className="current-card-overlay"/>
+  <div className="current-topline"><span className="live-pill"><i/> CURRENT WEATHER</span><span className="current-date">{new Intl.DateTimeFormat("en",{weekday:"long",month:"short",day:"numeric"}).format(new Date())}</span></div>
+  <div className="current-main"><div className="current-location"><span className="current-label">RIGHT NOW IN</span><h2>{data.city}<small>{data.country}</small></h2><p>{data.description}</p></div><div className="temperature-block"><img src={"https://openweathermap.org/img/wn/"+data.icon+"@2x.png"} alt={data.weather}/><strong>{data.temperature}<sup>°</sup></strong><span>Feels like {data.feelsLike}°</span></div></div>
+  <div className="current-bottomline"><span>High <b>{data.maxTemp}°</b></span><span className="bottom-divider"/><span>Low <b>{data.minTemp}°</b></span><span className="bottom-spacer"/><span className="coordinates">{data.coordinates.lat.toFixed(2)}°, {data.coordinates.lon.toFixed(2)}°</span></div></article>
+  <aside className="details-column"><div className="details-heading"><span className="eyebrow">AT A GLANCE</span><span>LOCAL DETAILS</span></div><div className="detail-tile"><span className="detail-icon">%</span><span className="detail-label">Humidity</span><strong>{data.humidity}<small>%</small></strong><div className="metric-track"><i style={{width:data.humidity+"%"}}/></div></div><div className="detail-tile"><span className="detail-icon wind-icon">↗</span><span className="detail-label">Wind speed</span><strong>{data.windSpeed}<small> km/h</small></strong><p>Measured near the surface</p></div><div className="sun-times"><div><span>☼</span><small>SUNRISE</small><b>{time(data.sunrise,data.timezone)}</b></div><div><span>☾</span><small>SUNSET</small><b>{time(data.sunset,data.timezone)}</b></div></div></aside>
+ </section>;
 }
